@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Faculty Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f6f8;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 220px;
+            background-color: #2c3e50;
+            min-height: 100vh;
+            padding: 30px 20px;
+            color: white;
+        }
+
+        .sidebar h2 {
+            font-size: 22px;
+            margin-bottom: 30px;
+        }
+
+        .sidebar a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 6px;
+            background-color: #34495e;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #3e5a73;
+        }
+
+        .main {
+            flex: 1;
+        }
+
+        .navbar {
+            background-color: #ffffff;
+            padding: 20px 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+            color: #2c3e50;
+        }
+
+        .logout-btn {
+            padding: 10px 16px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .content h2 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 15px;
+        }
+
+        th {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-success {
+            background-color: #2ecc71;
+        }
+
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-secondary {
+            background-color: #3498db;
+        }
+
+        .btn-secondary:hover {
+            background-color: #2980b9;
+        }
+
+        .empty-state {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                display: flex;
+                flex-direction: row;
+                gap: 15px;
+                justify-content: center;
+            }
+
+            .main {
+                width: 100%;
+            }
+
+            .navbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Faculty Panel</h2>
+        <a href="/faculty/events/create">Create New Event</a>
+        <!-- Optional: Add more if needed -->
+    </div>
+
+    <!-- Main Section -->
+    <div class="main">
+
+        <!-- Top Navbar -->
+        <div class="navbar">
+            <h1>Faculty Dashboard</h1>
+            <a href="/auth/logout" class="logout-btn">Logout</a>
+        </div>
+
+        <!-- Content Section -->
+        <div class="content">
+            <h2>Your Events</h2>
+
+            <div th:if="${not events.empty}">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Event Name</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Venue</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="event : ${events}">
+                            <td th:text="${event.name}"></td>
+                            <td th:text="${#temporals.format(event.eventDate, 'dd-MM-yyyy')}"></td>
+                            <td th:text="${#temporals.format(event.eventTime, 'HH:mm')}"></td>
+                            <td th:text="${event.venue}"></td>
+                            <td>
+                                <a th:href="@{/faculty/events/{id}/registrations(id=${event.id})}" class="btn btn-secondary">View Registrations</a>
+                                <form th:action="@{/faculty/events/{id}/delete(id=${event.id})}" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger" style="margin-left: 10px;">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${events.empty}" class="empty-state">
+                <p>You haven't created any events yet.</p>
+                <a href="/faculty/events/create" class="btn btn-success">Create Your First Event</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
